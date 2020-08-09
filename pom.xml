@@ -7,7 +7,7 @@
 
     <groupId>uk.co.somestuff</groupId>
     <artifactId>NetworkRailTDGUI</artifactId>
-    <version>3.4-SNAPSHOT-REDACTED</version>
+    <version>3.4-SNAPSHOT</version>
 
     <build>
         <plugins>

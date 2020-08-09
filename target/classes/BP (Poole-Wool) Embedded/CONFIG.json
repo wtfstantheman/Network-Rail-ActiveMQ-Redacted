@@ -1,0 +1,12 @@
+{
+    "$type": "NetworkRail.ActiveMQ.Support.Config",
+    "name": "Basingstoke (Poole - Wool)",
+    "topic": "TD_ALL_SIG_AREA",
+    "areas_covered": [
+        {
+            "id": "BP",
+            "name": "Basingstoke (Poole - Wool)",
+            "topic": "TD_WESS_SIG_AREA"
+        }
+    ]
+}

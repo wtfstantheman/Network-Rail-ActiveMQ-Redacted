@@ -1,11 +1,17 @@
 package uk.co.somestuff.NetworkRail.ActiveMQ;
 
 import net.ser1.stomp.Listener;
+import org.apache.xpath.XPathAPI;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import uk.co.somestuff.NetworkRail.ActiveMQ.GUI.Main;
 
+import javax.xml.transform.TransformerException;
 import java.util.Map;
 
 public class MyListener implements Listener {
@@ -72,15 +78,40 @@ public class MyListener implements Listener {
 
                     /** Train has moved between berths **/
 
-                    String to = "";
-                    String from = "";
+                    String to;
+                    String from;
 
                     System.out.println("[uk.co.somestuff.NetworkRail.ActiveMQ] Train " + localJObjectO.getString("descr") + " has moved from " + (localJObjectO.has("from") ? localJObjectO.getString("from") : "empty") + " to " + (localJObjectO.has("to") ? localJObjectO.getString("to") : "empty"));
 
                     if (localJObjectO.has("to")) {
                         to = localJObjectO.getString("to");
-                        Element signal = this.map.svgDoc.getElementById(localJObjectO.getString("area_id") + to);
-                        signal.setTextContent(localJObjectO.getString("descr"));
+
+                        if (!localJObjectO.has("from")) {
+                            /** We need to go through the berths to remove the train from the old berth because Network Rail doesn't always say **/
+                            Element searchElement = this.map.svgDoc.getDocumentElement();
+                            NodeList nl = null;
+                            try {
+                                nl = XPathAPI.selectNodeList(searchElement, ".//*[@key=\"berth\"]");
+                            } catch (TransformerException e) {
+                                e.printStackTrace();
+                            }
+
+                            for (int ii = 0; ii < nl.getLength(); ii++) {
+                                if (nl.item(ii).getTextContent().equals(localJObjectO.getString("descr"))) {
+                                    nl.item(ii).setTextContent("");
+                                }
+                            }
+                        }
+
+                        /** Now we can set the new berth to show the train describer **/
+                        try {
+                            Element signal = this.map.svgDoc.getElementById(localJObjectO.getString("area_id") + to);
+                            signal.setTextContent(localJObjectO.getString("descr"));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("[uk.co.somestuff.NetworkRail.ActiveMQ] Unable to find element '" + localJObjectO.getString("area_id") + to + "'?");
+                        }
+
                         //Main.svgCanvas.flush();
                         this.map.svgCanvas.setDocument(this.map.svgDoc);
                         System.out.println("[uk.co.somestuff.NetworkRail.ActiveMQ] Updated " + localJObjectO.getString("area_id") + to + " with " + localJObjectO.getString("descr"));
@@ -88,8 +119,14 @@ public class MyListener implements Listener {
 
                     if (localJObjectO.has("from")) {
                         from = localJObjectO.getString("from");
-                        Element signal = this.map.svgDoc.getElementById(localJObjectO.getString("area_id") + from);
-                        signal.setTextContent("");
+                        try {
+                            Element signal = this.map.svgDoc.getElementById(localJObjectO.getString("area_id") + from);
+                            signal.setTextContent("");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("[uk.co.somestuff.NetworkRail.ActiveMQ] Unable to find element '" + localJObjectO.getString("area_id") + from + "'?");
+                        }
+
                         //Main.svgCanvas.flush();
                         this.map.svgCanvas.setDocument(this.map.svgDoc);
                         System.out.println("[uk.co.somestuff.NetworkRail.ActiveMQ] Updated " + localJObjectO.getString("area_id") + from + " with 'empty'");

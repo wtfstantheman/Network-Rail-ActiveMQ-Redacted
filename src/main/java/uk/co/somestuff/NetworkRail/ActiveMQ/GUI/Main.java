@@ -57,7 +57,7 @@ public class Main {
 
     private static JTextField emailField;
     private static JPasswordField passwordField;
-    private static JMenuItem m0, m1, m2;
+    private static JMenuItem m0, m1, m2, m3, s1, s2;
     private static JButton openAConfigurationArchive;
 
     private static ClassLoader classLoader = ClassLoader.getSystemClassLoader();
@@ -90,12 +90,20 @@ public class Main {
         m1 = new JMenuItem("Open Config Archive");
         m2 = new JMenuItem("Login to Network Rail Data Feed");
 
+        s1 = new JMenuItem("BP (Poole-Wool)");
+        s2 = new JMenuItem("EH (Eastleigh)");
+
+        JMenu subMen = new JMenu("Embedded");
+        subMen.add(s1);
+        subMen.add(s2);
+
         m1.setAccelerator(KeyStroke.getKeyStroke('O', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         m2.setAccelerator(KeyStroke.getKeyStroke('L', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
         x.add(m0);
         x.add(m1);
         x.add(m2);
+        x.add(subMen);
 
         mb.add(x);
 
@@ -113,6 +121,20 @@ public class Main {
             }
         });
 
+        s1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PackageLoader().setReaderToView(new InputStreamReader(classLoader.getResourceAsStream("BP (Poole-Wool) Embedded/CONFIG.json")), new InputStreamReader(classLoader.getResourceAsStream("BP (Poole-Wool) Embedded/SOP.json")), new InputStreamReader(classLoader.getResourceAsStream("BP (Poole-Wool) Embedded/MAP.svg")));
+            }
+        });
+
+        s2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new PackageLoader().setReaderToView(new InputStreamReader(classLoader.getResourceAsStream("EH (Eastleigh) Embedded/CONFIG.json")), new InputStreamReader(classLoader.getResourceAsStream("EH (Eastleigh) Embedded/SOP.json")), new InputStreamReader(classLoader.getResourceAsStream("EH (Eastleigh) Embedded/MAP.svg")));
+            }
+        });
+
         splashForm = new SplashForm();
 
         disableButtons();
@@ -121,11 +143,15 @@ public class Main {
 
     private static void disableButtons() {
         m1.setEnabled(false);
+        s1.setEnabled(false);
+        s2.setEnabled(false);
         openAConfigurationArchive.setEnabled(false);
     }
 
     private static void enableButtons() {
         m1.setEnabled(true);
+        s1.setEnabled(true);
+        s2.setEnabled(true);
         openAConfigurationArchive.setEnabled(true);
     }
 
@@ -146,6 +172,7 @@ public class Main {
             if (success) {
                 c.disconnect();
                 enableButtons();
+                s2.setEnabled(false);
                 loginForm.dispose();
                 splashForm.setJMenuBar(mb);
             }
@@ -602,7 +629,7 @@ public class Main {
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
                 if (height < screenSize.getHeight()) {
-                    newHeight = (int) height + 100;
+                    newHeight = (int) height + 50;
                 } else {
                     newHeight = (int) (screenSize.getHeight() - 100);
                 }
